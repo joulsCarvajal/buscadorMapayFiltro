@@ -18,6 +18,7 @@ export default function CityList({ data, favorites, onToggleFavorite, navigation
           isFavorite={favorites.has(item._id.toString())}
           onToggleFavorite={onToggleFavorite}
           onPress={() => navigation.navigate('Map', { city: item })}
+          navigation={navigation}
         />
       )}
       keyExtractor={item => item._id.toString()}
