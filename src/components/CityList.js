@@ -2,7 +2,7 @@ import { VirtualizedList } from "react-native";
 import { useState } from "react";
 import CityItem from './CityItem';
 
-export default function CityList({ data }) {
+export default function CityList({ data, favorites, onToggleFavorite }) {
   const getItem = (data, index) => data[index];
 
   return (
@@ -11,9 +11,12 @@ export default function CityList({ data }) {
       initialNumToRender={10}
       renderItem={({ item }) => (
         <CityItem 
+          id={item._id}
           name={item.name}
           country={item.country}
           coord={item.coord}
+          isFavorite={favorites.has(item._id.toString())}
+          onToggleFavorite={onToggleFavorite}
         />
       )}
       keyExtractor={item => item._id.toString()}
