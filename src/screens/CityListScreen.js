@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
-import { View, StyleSheet, ActivityIndicator } from "react-native";
+import MapView, { Marker } from 'react-native-maps';
+import { View, StyleSheet, ActivityIndicator, useWindowDimensions, Dimensions } from "react-native";
 import SearchBar from "../components/SearchBar";
 import CityList from "../components/CityList";
 import { CitySearchIndex } from "../utils/searchIndex";
@@ -15,10 +16,18 @@ export default function CityListScreen({ navigation }) {
   const [searchIndex, setSearchIndex] = useState(null);
   const [favorites, setFavorites] = useState(new Set());
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+  const { width, height } = useWindowDimensions();
+  const [isLandscape, setIsLandscape] = useState(width > height);
+  const [selectedCity, setSelectedCity] = useState(null);
 
   useEffect(() => {
     fetchCities();
     loadFavorites();
+
+    const subscription = Dimensions.addEventListener('change', ({ window }) => {
+      setIsLandscape(window.width > window.height);
+    });
+
   }, []);
 
   const loadFavorites = async () => {
@@ -61,6 +70,18 @@ export default function CityListScreen({ navigation }) {
     return results;
   }, [searchIndex, searchQuery, showOnlyFavorites, favorites, cities]);
 
+  const handleCityPress = (city) => {
+    if (isLandscape) {
+      setSelectedCity(city);
+    } else {
+      navigation.navigate('Map', { 
+        city: city,
+        isFavorite: favorites.has(city._id.toString()),
+        onToggleFavorite: handleToggleFavorite
+      });
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -71,18 +92,62 @@ export default function CityListScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        showOnlyFavorites={showOnlyFavorites}
-        onToggleFavorites={() => setShowOnlyFavorites(!showOnlyFavorites)}
-      />
-      <CityList 
-        data={filteredCities} 
-        favorites={favorites}
-        onToggleFavorite={handleToggleFavorite}
-        navigation={navigation}
-      />
+      {isLandscape ? (
+        <View style={styles.landscapeContainer}>
+          <View style={styles.listContainerLandscape}>
+            <SearchBar 
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              showOnlyFavorites={showOnlyFavorites}
+              onToggleFavorites={() => setShowOnlyFavorites(!showOnlyFavorites)}
+            />
+            <CityList 
+              data={filteredCities}
+              favorites={favorites}
+              onToggleFavorite={handleToggleFavorite}
+              navigation={navigation}
+              onPress={handleCityPress}
+            />
+          </View>
+          <View style={styles.mapContainerLandscape}>
+            <MapView
+              style={styles.map}
+              region={selectedCity ? {
+                latitude: selectedCity.coord.lat,
+                longitude: selectedCity.coord.lon,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              } : null}
+            >
+              {selectedCity && (
+                <Marker
+                  coordinate={{
+                    latitude: selectedCity.coord.lat,
+                    longitude: selectedCity.coord.lon,
+                  }}
+                  title={selectedCity.name}
+                />
+              )}
+            </MapView>
+          </View>
+        </View>
+      ) : (
+        <View style={styles.portraitContainer}>
+          <SearchBar 
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            showOnlyFavorites={showOnlyFavorites}
+            onToggleFavorites={() => setShowOnlyFavorites(!showOnlyFavorites)}
+          />
+          <CityList 
+            data={filteredCities}
+            favorites={favorites}
+            onToggleFavorite={handleToggleFavorite}
+            navigation={navigation}
+            onPress={handleCityPress}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -96,4 +161,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  portraitContainer: {
+    flex: 1,
+  },
+  landscapeContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  listContainerLandscape: {
+    width: '50%',
+    borderRightWidth: 1,
+    borderRightColor: '#eee',
+  },
+  mapContainerLandscape: {
+    width: '50%',
+  },
+  map: {
+    flex: 1,
+  }
 });
+

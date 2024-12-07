@@ -24,6 +24,7 @@ export default function CityItem({
       <View style={styles.actions}>
         <TouchableOpacity 
           onPress={() => onToggleFavorite(id)}
+          style={styles.iconButton}
         >
           <MaterialIcons
             name={isFavorite ? "star" : "star-outline"}
@@ -34,12 +35,15 @@ export default function CityItem({
         <TouchableOpacity 
           onPress={() => navigation.navigate('CityDetail', { 
             city: { id, name, country, coord },
-            isFavorite,
-            onToggleFavorite
+            isFavorite
           })}
-          style={styles.infoButton}
+          style={styles.iconButton}
         >
-          <MaterialIcons name="info" size={24} color="#666" />
+          <MaterialIcons
+            name="info"
+            size={24}
+            color="#666"
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -48,29 +52,29 @@ export default function CityItem({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
+    flexDirection: 'row',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    alignItems: "center",
+    borderBottomColor: '#eee',
+    alignItems: 'center',
   },
   content: {
     flex: 1,
   },
   title: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   subtitle: {
     fontSize: 14,
-    color: "#666",
+    color: '#666',
     marginTop: 4,
   },
   actions: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  actionButton: {
+  iconButton: {
     padding: 4,
     marginLeft: 8,
   },
