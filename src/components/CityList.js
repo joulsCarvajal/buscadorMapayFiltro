@@ -2,7 +2,7 @@ import { VirtualizedList } from "react-native";
 import { useState } from "react";
 import CityItem from './CityItem';
 
-export default function CityList({ data, favorites, onToggleFavorite, navigation }) {
+export default function CityList({ data, favorites, onToggleFavorite, navigation, onPress }) {
   const getItem = (data, index) => data[index];
 
   return (
@@ -17,7 +17,7 @@ export default function CityList({ data, favorites, onToggleFavorite, navigation
           coord={item.coord}
           isFavorite={favorites.has(item._id.toString())}
           onToggleFavorite={onToggleFavorite}
-          onPress={() => navigation.navigate('Map', { city: item })}
+          onPress={() => onPress(item)}
           navigation={navigation}
         />
       )}
