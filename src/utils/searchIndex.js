@@ -1,3 +1,4 @@
+
 export class CitySearchIndex {
   constructor(cities) {
     this.index = new Map();
@@ -12,9 +13,16 @@ export class CitySearchIndex {
     this.buildIndex(this.sortedCities);
   }
 
+  normalizeString(str) {
+    return str.normalize('NFD')
+             .replace(/[\u0300-\u036f]/g, '')
+             .toLowerCase();
+  }
+
+
   buildIndex(cities) {
     cities.forEach(city => {
-      const name = city.name.toLowerCase();
+      const name = this.normalizeString(city.name);
       for (let i = 1; i <= name.length; i++) {
         const prefix = name.slice(0, i);
         if (!this.index.has(prefix)) {
@@ -27,6 +35,7 @@ export class CitySearchIndex {
 
   search(prefix) {
     if (!prefix) return this.sortedCities;
-    return this.index.get(prefix.toLowerCase()) || [];
+    const normalizedPrefix = this.normalizeString(prefix);
+    return this.index.get(normalizedPrefix) || [];
   }
 }
